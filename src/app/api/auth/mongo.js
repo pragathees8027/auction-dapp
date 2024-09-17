@@ -1,15 +1,13 @@
 import mongoose  from "mongoose";
 
 
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-});
+export const User = mongoose.models.User || mongoose.model("User",new mongoose.Schema({
+  username: { type: String, required: true },
+  password: { type: String, required: true },
+  address: { type: String, required: true},
+}))
 
-export const User = mongoose.model("User", userSchema);
-
-
-const MONGODB_URI = process.env.MONGO_URL || "mongodb://localhost:27017";
+const MONGODB_URI = process.env.MONGO_URL || "mongodb://localhost:27017/auction";
 
 
 if (!MONGODB_URI) {

@@ -13,8 +13,8 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "Account",
-  description: "Create Account",
+  title: "Item",
+  description: "Add Item to Auction",
 };
 
 export default function RootLayout({ children }) {

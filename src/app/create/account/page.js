@@ -6,8 +6,9 @@ import Footer from '../../../components/Footer.js';
 export default function Home() {
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
+  let [useraddr, setUseraddr] = useState('');
 
-  const handleUsernameChange = (event) => {
+  const handleUsernameChange = async (event) => {
     setUsername(event.target.value);
   };
 
@@ -15,57 +16,38 @@ export default function Home() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
-    // setLoading(true);
+  const handleAddressChange = (event) => {
+    setUseraddr(event.target.value);
+  };
 
-    if (!username.trim() && !password.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Username and password are required.');
-      // setShowAlert(true);
-      return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          useraddr,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Account created successfully: ${result.username}`);
+        console.log(result);
+      } else {
+        const errorText = await response.text();
+        alert(errorText);
+      }
+    } catch (error) {
+      alert('An error occurred while creating the account.');
+      console.error('Error:', error);
     }
-
-    if (!username.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Username is required.');
-      // setShowAlert(true);
-      return;
-    }
-
-    if (!password.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Password is required.');
-      // setShowAlert(true);
-      return;
-    }
-
-    // axios.post('http://localhost:3001/create', { username, password })
-    // .then(response => {
-    //   const { message, user, error } = response.data;
-    //   console.log('Data sent successfully');
-    //   if (message == 'success') {
-    //       console.log('Account created: ', user);
-    //       setColor('green');
-    //       setMessage('Account created: ', user.username);
-    //       setStatus(true);
-    //   } else {
-    //       console.log('Account creation failed: ', message);
-    //       setColor('red');
-    //       setMessage(message);
-    //   }
-    //   setLoading(false);
-    //   setShowAlert(true)
-    // })
-    // .catch(error => {
-    //   console.error('Error sending data:', error);
-    //   setMessage('Error creating account.');
-    //   setLoading(false);
-    //   setShowAlert(true);
-    // });
-    alert(`${username} : ${password}`);
 };
 
   return (
@@ -85,6 +67,18 @@ export default function Home() {
               value={username}
               placeholder="type username here"
               onChange={handleUsernameChange}
+              required
+            />
+          </ul>
+          <ul className="mb-4">
+            <label htmlFor="useraddr">Public address: </label>
+            <input
+              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              type="text"
+              id="useraddr"
+              value={useraddr}
+              placeholder="type public address here"
+              onChange={handleAddressChange}
               required
             />
           </ul>

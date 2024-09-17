@@ -35,11 +35,11 @@ export const GET = async (req) => {
 export const POST = async (req) => {
     await dbConnect();
     try {
-        const { username, password } = await req.json();
-        console.log(username, password);
+        const { username, useraddr, password } = await req.json();
+        console.log(username, useraddr, password);
 
-        if (!username || !password) {
-            return new Response("Missing username or password", { status: 401 });
+        if (!username || !password || !useraddr) {
+            return new Response("Missing username, public address or password", { status: 401 });
         }
 
         // Check if the user already exists
@@ -54,12 +54,14 @@ export const POST = async (req) => {
 
         // Create a new user
         const user = await User.create({
-            username,
-            password: hashedPassword
+            username: username,
+            password: hashedPassword,
+            address: useraddr,
         });
 
         return new Response(JSON.stringify(user), { status: 200 });
     } catch (error) {
+        console.log(error)
         return new Response("Internal server error", { status: 500 });
     }
 };
