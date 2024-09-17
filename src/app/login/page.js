@@ -15,58 +15,35 @@ export default function Home() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
-    // setLoading(true);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    if (!username.trim() && !password.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Username and password are required.');
-      // setShowAlert(true);
-      return;
+    try {
+      const response = await fetch(`/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Logged in successfully: ${result.username}`);
+        console.log(result);
+      } else {
+        const errorText = await response.text();
+        alert(errorText);
+      }
+    } catch (error) {
+      alert('An error occurred while logging in.');
+      console.error('Error:', error);
     }
-
-    if (!username.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Username is required.');
-      // setShowAlert(true);
-      return;
-    }
-
-    if (!password.trim()) {
-      // setLoading(false);
-      // setColor('red');
-      alert('Password is required.');
-      // setShowAlert(true);
-      return;
-    }
-
-    // axios.post('http://localhost:3001/create', { username, password })
-    // .then(response => {
-    //   const { message, user, error } = response.data;
-    //   console.log('Data sent successfully');
-    //   if (message == 'success') {
-    //       console.log('Account created: ', user);
-    //       setColor('green');
-    //       setMessage('Account created: ', user.username);
-    //       setStatus(true);
-    //   } else {
-    //       console.log('Account creation failed: ', message);
-    //       setColor('red');
-    //       setMessage(message);
-    //   }
-    //   setLoading(false);
-    //   setShowAlert(true)
-    // })
-    // .catch(error => {
-    //   console.error('Error sending data:', error);
-    //   setMessage('Error creating account.');
-    //   setLoading(false);
-    //   setShowAlert(true);
-    // });
-    alert(`${username} : ${password}`);
 };
+
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

@@ -15,6 +15,38 @@ export default function Home() {
     setPassword(event.target.value);
   };
 
+  const handleAddressChange = (event) => {
+    setUseraddr(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          useraddr,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Account created successfully: ${result.username}`);
+        console.log(result);
+      } else {
+        const errorText = await response.text();
+        alert(errorText);
+      }
+    } catch (error) {
+      alert('An error occurred while creating the account.');
+      console.error('Error:', error);
+    }
   const handleSubmit = () => {
     // setLoading(true);
 
