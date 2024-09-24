@@ -2,9 +2,26 @@ import mongoose  from "mongoose";
 
 
 export const User = mongoose.models.User || mongoose.model("User",new mongoose.Schema({
-  username: { type: String, required: true },
+  username: { type: String, required: true , unique: true},
   password: { type: String, required: true },
-  address: { type: String, required: true},
+}, {
+  indexes: [{ key: { username: 1 }, unique: true }] // Create an index on the username field
+}))
+
+export const Item = mongoose.models.Item || mongoose.model("Item",new mongoose.Schema({
+  itemname: { type: String, required: true },
+  itemprice: { type: Number, required: true },
+  datetime: { type: Date, required: true },
+  itemowner: { type: String, required: true },
+  available: {type: Boolean, required: true},
+}))
+
+export const Bid = mongoose.models.Bid || mongoose.model("Bid",new mongoose.Schema({
+  itemname: { type: String, required: true },
+  bidder: { type: String, required: true },
+  bidprice: { type: Number, required: true },
+  datetime: { type: Date, required: true },
+  winner: {type: Boolean, required: true},
 }))
 
 const MONGODB_URI = process.env.MONGO_URL || "mongodb://localhost:27017/auction";

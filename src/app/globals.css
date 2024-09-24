@@ -5,19 +5,59 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --placeholder: grey;
+  --shadow: rgba(0, 0, 0, 0.3)
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme='dark'] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --placeholder: rgba(256, 256, 256, .5);
+  --shadow: rgba(128, 128, 128, 0.2)
+}
+
+.tooltip {
+  background: #0a0a0a;
+  color: #ededed;
+}
+
+[data-theme='dark'] .tooltip {
+  background: #ffffff;
+  color: #171717;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.shadow {
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 30px 4px var(--shadow);
+}
+
+.marginBottom {
+  margin-bottom: -50px;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder,
+::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+::-webkit-input-placeholder { /* Safari */
+  color: var(--placeholder);
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder,
+select::-moz-placeholder,
+::-moz-placeholder { /* Firefox 19+ */
+  color: var(--placeholder);
 }
 
 @layer utilities {

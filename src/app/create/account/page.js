@@ -1,12 +1,27 @@
 'use client';
 
-import { useState } from "react";
-import Footer from '../../../components/Footer.js';
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import Footer from '@/components/Footer';
+import useSessionStore from '@/stores/useSessionStore.js';
+import Loading from "@/components/Loading.js";
+import Header from "@/components/Header.js";
 
 export default function Home() {
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
-  let [useraddr, setUseraddr] = useState('');
+  let [loading, setLoading] = useState(true)
+  let router = useRouter();
+
+  useEffect(() => {
+    let isUserAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    if (isUserAuthenticated) {
+      router.push('/create/item');
+    } else {
+      setTimeout(() => { setLoading(false)}, 200);
+      // setLoading(false);
+    }
+  }, [router]);
 
   const handleUsernameChange = async (event) => {
     setUsername(event.target.value);
@@ -16,22 +31,17 @@ export default function Home() {
     setPassword(event.target.value);
   };
 
-  const handleAddressChange = (event) => {
-    setUseraddr(event.target.value);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch('/api/auth', {
+      const response = await fetch('/api/auth/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username,
-          useraddr,
           password,
         }),
       });
@@ -40,6 +50,7 @@ export default function Home() {
         const result = await response.json();
         alert(`Account created successfully: ${result.username}`);
         console.log(result);
+        router.push('/login');
       } else {
         const errorText = await response.text();
         alert(errorText);
@@ -50,18 +61,25 @@ export default function Home() {
     }
 };
 
+
+if (loading) {
+  return <Loading />;
+}
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-10 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
+      <Header />
+      
+      <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-16 py-8 rounded-lg">
         <h2 className="text-center text-2xl text-blue-500 font-bold">
               Create Account
         </h2>
 
         <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <ul className="mb-4">
-            <label htmlFor="username">Username: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-20"  htmlFor="username">Username: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="text"
               id="username"
               value={username}
@@ -70,22 +88,10 @@ export default function Home() {
               required
             />
           </ul>
-          <ul className="mb-4">
-            <label htmlFor="useraddr">Public address: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-20"  htmlFor="password">Password: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
-              type="text"
-              id="useraddr"
-              value={useraddr}
-              placeholder="type public address here"
-              onChange={handleAddressChange}
-              required
-            />
-          </ul>
-          <ul className="mb-4">
-            <label htmlFor="password">Password: </label>
-            <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="password"
               id="password"
               value={password}
@@ -96,7 +102,7 @@ export default function Home() {
           </ul>
           <div className="flex justify-center mt-8">
             <button
-              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
+              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 focus:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
               onClick={handleSubmit}
             >
               Create Account

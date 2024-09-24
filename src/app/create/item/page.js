@@ -1,13 +1,35 @@
 'use client';
 
-import { useState } from "react";
-import Footer from '../../../components/Footer.js';
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import Footer from '@/components/Footer.js';
+import useSessionStore from '@/stores/useSessionStore.js';
+import Loading from "@/components/Loading.js";
+import Header from "@/components/Header.js";
 
 export default function Home() {
   let [itemname, setItemname] = useState('');
   let [itemprice, setItemprice] = useState(10);
   let [startdate, setStartdate] = useState('');
   let [starttime, setStarttime] = useState('');
+  let [loading, setLoading] = useState(true)
+  let router = useRouter();
+
+  useEffect(() => {
+    let isUserAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    if (!isUserAuthenticated) {
+      router.push('/login');
+    } else {
+      let user = localStorage.getItem('username');
+      if (!user) {
+        logout();
+        alert('Session error. Please login again.');
+        router.push('/login');
+      }
+      setTimeout(() => { setLoading(false)}, 200);
+      // setLoading(false);
+    }
+  }, [router]);
 
   const handleItemnameChange = (event) => {
     setItemname(event.target.value);
@@ -29,79 +51,71 @@ export default function Home() {
     setItemprice(event.target.value);
   }; 
 
-  const handleSubmit = () => {
+  const handleSubmit = async (event) => {
+    let username = localStorage.getItem('username');
+    let itemowner = username;
 
-    if (!itemname.trim()) {
-      alert('Item name is required.');
-      return;
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/api/auction/put', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemname,
+          itemprice,
+          startdate,
+          starttime,
+          itemowner,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Item added successfully: ${item.itemname}, Available: ${item.available}`);
+        console.log(result);
+      } else {
+        const errorText = await response.text();
+        alert(errorText);
+      }
+    } catch (error) {
+      alert('An error occurred while adding item.');
+      console.error('Error:', error);
     }
-
-    if (!itemprice) {
-      alert('Item price is required.');
-      return;
-    }
-
-    if (!startdate.trim()) {
-      alert('Date is required.');
-      return;
-    }
-
-    if (!starttime.trim()) {
-      alert('Time is required.');
-      return;
-    }
-
-
-    // axios.post('http://localhost:3001/create', { username, password })
-    // .then(response => {
-    //   const { message, user, error } = response.data;
-    //   console.log('Data sent successfully');
-    //   if (message == 'success') {
-    //       console.log('Account created: ', user);
-    //       setColor('green');
-    //       setMessage('Account created: ', user.username);
-    //       setStatus(true);
-    //   } else {
-    //       console.log('Account creation failed: ', message);
-    //       setColor('red');
-    //       setMessage(message);
-    //   }
-    //   setLoading(false);
-    //   setShowAlert(true)
-    // })
-    // .catch(error => {
-    //   console.error('Error sending data:', error);
-    //   setMessage('Error creating account.');
-    //   setLoading(false);
-    //   setShowAlert(true);
-    // });
-    alert(`${itemname} : ${itemprice} : ${startdate} : ${starttime}`);
 };
 
+if (loading) {
+  return <Loading />;
+}
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-10 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
+      <Header />
+
+      <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-16 py-8 rounded-lg shadow">
         <h2 className="text-center text-2xl text-blue-500 font-bold">
               Add Item
         </h2>
 
         <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <ul className="mb-4">
-            <label htmlFor="username">Item name: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-32" htmlFor="item_name">Item name: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="text"
-              id="username"
+              id="item_name"
               value={itemname}
               placeholder="type item name here"
               onChange={handleItemnameChange}
               required
             />
           </ul>
-          <ul className="mb-4">
-            <label htmlFor="price">Staring price: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-32" htmlFor="price">Staring price: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="number"
               id="price"
               value={itemprice}
@@ -109,10 +123,10 @@ export default function Home() {
               required
             />
           </ul>
-          <ul className="mb-4">
-            <label htmlFor="start_time">Starting Time: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-32" htmlFor="start_time">Starting Time: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="time"
               id="start_time"
               value={starttime}
@@ -121,10 +135,10 @@ export default function Home() {
               required
             />
           </ul>
-          <ul className="mb-4">
-            <label htmlFor="start_date">Auction date: </label>
+          <ul className="mb-4 flex gap-2 items-center justify-end">
+            <label className="w-32" htmlFor="start_date">Auction date: </label>
             <input
-              className="text-black placeholder:text-gray-500 text-center rounded p-1"
+              className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="date"
               id="start_date"
               value={startdate}
@@ -135,7 +149,7 @@ export default function Home() {
           </ul>
           <div className="flex justify-center mt-8">
             <button
-              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
+              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 focus:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
               onClick={handleSubmit}
             >
               Add Item to Auction
