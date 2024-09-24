@@ -11,7 +11,6 @@ export default function Home() {
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
   let [loading, setLoading] = useState(true)
-  const { theme, setTheme } = useTheme();
   let isAuthenticated = useSessionStore(state => state.isAuthenticated);
   let login = useSessionStore(state => state.login);
   let router = useRouter();
@@ -73,7 +72,7 @@ if (loading) {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-10 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
       <Header />
-      <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-16 py-8 rounded-lg">
+      <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-24 py-16 rounded-lg shadow">
         <h2 className="text-center text-2xl text-blue-500 font-bold">
               Login
         </h2>
