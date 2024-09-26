@@ -10,5 +10,5 @@ export default function ThemeProvider({ children }) {
     document.documentElement.setAttribute('data-theme', theme);
   }, []);
 
-  return <NextThemesProvider>{children}</NextThemesProvider>;
+  return <NextThemesProvider enableColorScheme={false} enableSystem={false}>{children}</NextThemesProvider>;
 }

@@ -28,7 +28,7 @@ export default function Footer() {
   const handleHome = () => {
     if (!(path == home)) {
       router.push(home);
-      router.refresh();
+      // router.refresh();
     }
   }
 
@@ -53,7 +53,7 @@ export default function Footer() {
   return (
     <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
       <a
-        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1 transition-all ease-in-out"
+        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1"
         onClick={handleHome}
         rel="noopener noreferrer"
       >
@@ -65,7 +65,7 @@ export default function Footer() {
         Home
       </a>
       <a
-        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1 transition-all ease-in-out"
+        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1 "
         onClick={handleCreate}
         rel="noopener noreferrer"
       >
@@ -77,7 +77,7 @@ export default function Footer() {
         Create
       </a>
       <a
-        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1 transition-all ease-in-out"
+        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1"
         onClick={handleLogin}
         rel="noopener noreferrer"
       >
@@ -89,7 +89,7 @@ export default function Footer() {
         Login
       </a>
       <a
-        className="flex items-center gap-2 cursor-point hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1 transition-all ease-in-out"
+        className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1"
         onClick={handleBids}
         rel="noopener noreferrer"
       >

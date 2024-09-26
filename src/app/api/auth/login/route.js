@@ -1,13 +1,13 @@
-import { dbConnect } from "../../mongo";
-import { User } from "../../mongo";
+import { dbConnect, User } from "@/app/api/mongo";
 import bcrypt from 'bcrypt'; 
 
 // To Authenticate the user
-export const POST = async (req) => {
+export const GET = async (req) => {
     await dbConnect();
     try {
-        const { username, password } = await req.json();
-        console.log(username, password);
+        const { searchParams } = new URL(req.url);
+        const username = searchParams.get('username');
+        const password = searchParams.get('password');
 
         if (!username || !password) {
             return new Response("Missing username or password", { status: 401 });

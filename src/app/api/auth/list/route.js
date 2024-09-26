@@ -1,22 +1,26 @@
-import { dbConnect } from "../auth/mongo";
-import { Item } from "../auth/mongo";
+import { dbConnect, Item } from "@/app/api/mongo";
 
 // To retrieve auction items
-export const POST = async (req) => {
+export const GET = async (req) => {
     await dbConnect();
     try {
-        const { itemowner } = await req.json();
+        const { searchParams } = new URL(req.url);
+        const itemowner = searchParams.get('itemowner');
 
-        // Check if item exists
-        const Items = await Item.find({ itemowner: itemowner });
+        if (!itemowner) {
+            return new Response("Missing item owner", { status: 400 });
+        }
+
+        // Find items based on itemowner
+        const Items = await Item.find({ itemowner });
         
         if (Items.length <= 0) {
-            return new Response("No items.", { status: 401 });
+            return new Response("No items.", { status: 404 });
         }
 
         return new Response(JSON.stringify(Items), { status: 200 });
     } catch (error) {
-        console.log(error)
+        console.log(error);
         return new Response("Internal server error", { status: 500 });
     }
 };

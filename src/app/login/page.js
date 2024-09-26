@@ -37,22 +37,18 @@ export default function Home() {
     event.preventDefault();
 
     try {
-      const response = await fetch(`/api/auth/login`, {
-        method: 'POST',
+      const response = await fetch(`/api/auth/login?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
       });
 
       if (response.ok) {
         const result = await response.json();
         if (result.username) {
           login(result.username);
-          alert(`${result.username}`);
+          alert(`Logged in successfully: ${result.username}`);
         }
         console.log(result);
       } else {
