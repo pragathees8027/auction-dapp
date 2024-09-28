@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { ethers } from 'ethers';
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +10,10 @@ import useSessionStore from '@/stores/useSessionStore.js';
 import Tooltip from "@/components/Tooltip";
 import Cookie from "js-cookie";
 
-export default function Header() {
+export default function Header({provider, setProvider, setSigner, setAuctionContract}) {
+  const auctionAbi = JSON.parse(process.env.NEXT_PUBLIC_AUCTION_ABI);
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
   const { theme, setTheme } = useTheme();
   const [icon, setIcon] = useState(faSun);
   const [username, setUsername] = useState('anonymous');
@@ -33,7 +37,19 @@ export default function Header() {
       setUsername(user);
     }
     setMounted(true);
-  }, [setTheme, router]);
+    const initProvider = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+          const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+          setProvider(newProvider);
+      } else {
+          alert('MetaMask not found');
+      }
+    };
+    initProvider();
+    if (isUserAuthenticated) {
+      connectMetaMask();
+    }
+  }, [setTheme, router, isConnected]);
 
   const copyToClipboard = useCallback(() => {
     if (authenticated) {
@@ -63,7 +79,12 @@ export default function Header() {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setPublicAddress(accounts[0]);
-        setIsConnected(true); // Set connected state to true
+        setIsConnected(true);
+        await provider.send("eth_requestAccounts", []);
+        const newSigner = provider.getSigner();
+        setSigner(newSigner);
+        const newContract = new ethers.Contract(contractAddress, auctionAbi, newSigner);
+        setAuctionContract(newContract);
       } catch (error) {
         console.error("Failed to connect:", error);
       }
@@ -82,7 +103,7 @@ export default function Header() {
       {authenticated && <Tooltip tooltip="click to logout">
       <button
           aria-label="Logout"
-          className={`flex gap-1 items-center px-4 py-2 rounded bg-red-500 text-white transition-colors duration-200`}
+          className={`flex gap-1 items-center px-4 py-2 rounded bg-red-500 hover:bg-red-700 text-white transition-colors duration-200`}
           onClick={handleLogout}
         >
           <FontAwesomeIcon icon={faRightFromBracket} />
@@ -104,7 +125,7 @@ export default function Header() {
       {authenticated && <Tooltip tooltip={isConnected ? "Connected to MetaMask" : "Connect to MetaMask"}>
         <button
           aria-label="Connect to MetaMask"
-          className={`flex items-center px-4 py-2 rounded ${isConnected ? 'bg-green-500' : 'bg-red-500'} text-white transition-colors duration-200`}
+          className={`flex items-center px-4 py-2 rounded ${isConnected ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'} text-white transition-colors duration-200`}
           onClick={connectMetaMask}
         >
           {isConnected ? "Connected" : "Connect to Metamask"}
@@ -117,7 +138,7 @@ export default function Header() {
           className="flex items-center cursor-pointer hover:scale-125 my-3 hover:text-blue-500"
           onClick={handleTheme}
         >
-          <FontAwesomeIcon icon={icon} />
+          <FontAwesomeIcon icon={icon}/>
         </button>
       </Tooltip>
     </header>

@@ -1,4 +1,4 @@
-import { getAuctionWinner } from '../utils/contract';
+import { getAuctionWinner } from '../auction';
 
 export default async function handler(req, res) {
     const { itemId } = req.query;

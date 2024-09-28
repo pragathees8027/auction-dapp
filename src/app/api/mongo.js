@@ -16,14 +16,6 @@ export const Item = mongoose.models.Item || mongoose.model("Item",new mongoose.S
   available: {type: Boolean, required: true},
 }))
 
-export const Bid = mongoose.models.Bid || mongoose.model("Bid",new mongoose.Schema({
-  itemname: { type: String, required: true },
-  bidder: { type: String, required: true },
-  bidprice: { type: Number, required: true },
-  datetime: { type: Date, required: true },
-  winner: {type: Boolean, required: true},
-}))
-
 const MONGODB_URI = process.env.MONGO_URL || "mongodb://localhost:27017/auction";
 
 

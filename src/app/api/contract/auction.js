@@ -27,19 +27,22 @@ export const createAuction = async (name, startingPrice) => {
         throw new Error('Auction contract is not initialized. Please connect your wallet.');
     }
 
-    const tx = await auctionContract.createAuction(name, ethers.utils.parseEther(startingPrice.toString()));
+    let price = ethers.utils.parseUnits(startingPrice, 18);
+
+    const tx = await auctionContract.createAuction(name, ethers.utils.parseEther(price.toString()));
     await tx.wait();
     return tx;
 };
 
-export const bid = async (itemId, bidAmount) => {
+export const bid = async (itemId, amount) => {
     if (!auctionContract) {
         throw new Error('Auction contract is not initialized. Please connect your wallet.');
     }
 
-    const tx = await auctionContract.bid(itemId, {
-        value: ethers.utils.parseEther(bidAmount.toString())
-    });
+    let highestBid = await auctionContract.getHighestBid(itemId);
+    let bidAmount = highestBid.add(ethers.utils.parseUnits(amount, 18));
+
+    const tx = await auctionContract.bid(itemId, { value: bidAmount });
     await tx.wait();
     return tx;
 };
@@ -49,7 +52,7 @@ export const endAuction = async (itemId) => {
         throw new Error('Auction contract is not initialized. Please connect your wallet.');
     }
 
-    const tx = await auctionContract.endAuction(itemId);
+    const tx = await auctionContract.endAuction(itemId, { gasLimit: 10000000 });
     await tx.wait();
     return tx;
 };
@@ -62,8 +65,34 @@ export const getAuctionWinner = async (itemId) => {
     const winnerData = await auctionContract.getAuctionWinner(itemId);
     return {
         winner: winnerData[0],
-        winningBid: ethers.utils.formatEther(winnerData[1]),
+        winningBid: ethers.utils.formatUnits(winnerData[1], 18),
     };
+};
+
+export const getOnGoingAuctionsNames = async () => {
+    if (!auctionContract) {
+        throw new Error('Auction contract is not initialized. Please connect your wallet.');
+    }
+
+    const ongoingAuctionData = await auctionContract.getOngoingAuctions();
+    let ongoingAuctions = [];
+    for (let i = 1; i < ongoingAuctionData.length; i++) {
+        try {
+            ongoingAuctions.push(await auctionContract.getItemIndex(ongoingAuctions[i].name));
+        } catch (error) {
+        }
+    }
+
+    return ongoingAuctions;
+};
+
+export const getOnGoingAuctionsData = async () => {
+    if (!auctionContract) {
+        throw new Error('Auction contract is not initialized. Please connect your wallet.');
+    }
+
+    const ongoingAuctionData = await auctionContract.getOngoingAuctions();
+    return ongoingAuctionData;
 };
 
 export const getItemIndex = async (itemName) => {
@@ -74,3 +103,12 @@ export const getItemIndex = async (itemName) => {
     const index = await auctionContract.getItemIndex(itemName);
     return index;
 };
+
+export const getAuctionBids = async (itemId) => {
+    if (!auctionContract) {
+        throw new Error('Auction contract is not initialized. Please connect your wallet.');
+    }
+
+    const auctionBids = await auctionContract.getBids(itemId);
+    return auctionBids;
+}

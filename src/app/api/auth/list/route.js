@@ -12,10 +12,10 @@ export const GET = async (req) => {
         }
 
         // Find items based on itemowner
-        const Items = await Item.find({ itemowner });
+        const Items = await Item.find({ itemowner: itemowner });
         
         if (Items.length <= 0) {
-            return new Response("No items.", { status: 404 });
+            return new Response("No items", { status: 404 });
         }
 
         return new Response(JSON.stringify(Items), { status: 200 });

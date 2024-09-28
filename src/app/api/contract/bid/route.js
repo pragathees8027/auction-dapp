@@ -1,4 +1,4 @@
-import { bid } from '../utils/contract';
+import { bid } from '../auction';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {

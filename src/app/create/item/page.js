@@ -8,8 +8,14 @@ import Loading from "@/components/Loading.js";
 import Header from "@/components/Header.js";
 
 export default function Home() {
+  let auctionAbi = JSON.parse(process.env.NEXT_PUBLIC_AUCTION_ABI);
+  let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  let [provider, setProvider] = useState(null);
+  let [signer, setSigner] = useState(null);
+  let [auctionContract, setAuctionContract] = useState(null);
+
   let [itemname, setItemname] = useState('');
-  let [itemprice, setItemprice] = useState(10);
+  let [itemprice, setItemprice] = useState(null);
   let [startdate, setStartdate] = useState('');
   let [starttime, setStarttime] = useState('');
   let [loading, setLoading] = useState(true)
@@ -44,45 +50,45 @@ export default function Home() {
   };
 
   const handleItempriceChange = (event) => {
-    if (event.target.value < 10) {
-      alert('Staring price cannot be below 10.');
-      return;
-    }
     setItemprice(event.target.value);
   }; 
 
   const handleSubmit = async (event) => {
+    event.preventDefault();
+
     let username = localStorage.getItem('username');
     let itemowner = username;
 
-    event.preventDefault();
-
     try {
-      const response = await fetch('/api/auction/put', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          itemname,
-          itemprice,
-          startdate,
-          starttime,
-          itemowner,
-        }),
-      });
+        const response = await fetch('/api/auction/put', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              itemname,
+              itemprice,
+              startdate,
+              starttime,
+              itemowner,
+          }),
+        });
 
-      if (response.ok) {
-        const result = await response.json();
-        alert(`Item added successfully: ${item.itemname}, Available: ${item.available}`);
-        console.log(result);
-      } else {
-        const errorText = await response.text();
-        alert(errorText);
-      }
+        if (response.ok) {
+            const result = await response.json();
+            const ws = new WebSocket('ws://localhost:8080');
+                ws.onopen = () => {
+                    ws.send(JSON.stringify({ type: 'ITEM_ADDED', item: result }));
+                };
+            alert(`Item added successfully: ${result.itemname}, Available: ${result.available}`);
+            console.log(result);
+        } else {
+            const errorText = await response.text();
+            alert(`${errorText}`);
+        }
     } catch (error) {
-      alert('An error occurred while adding item.');
-      console.error('Error:', error);
+        alert('An error occurred while adding item.');
+        console.error('Error:', error);
     }
 };
 
@@ -92,7 +98,7 @@ if (loading) {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-10 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
-      <Header />
+      <Header provider={provider} setProvider={setProvider} setSigner={setSigner} setAuctionContract={setAuctionContract}/>
 
       <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-20 py-8 rounded-lg shadow">
         <h2 className="text-center text-2xl text-blue-500 font-bold">
@@ -118,6 +124,7 @@ if (loading) {
               className="text-center rounded p-1 w-64 bg-white bg-opacity-30"
               type="number"
               id="price"
+              placeholder="type item price in ETH "
               value={itemprice}
               onChange={handleItempriceChange}
               required

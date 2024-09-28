@@ -9,18 +9,22 @@ export default function Footer() {
   let home = '/';
   let [create, setCreate] = useState('');
   let [createIcon, setCreateIcon] = useState();
-  let login = '/login';
-  let bids = '/bids';
+  let [login, setLogin] = useState('');
+  let [authenticated, setAuthenticated] = useState(false);
+  let auctions = '/auction';
   let router = useRouter();
   let path = usePathname();
 
   useEffect(() => {
     let isUserAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (isUserAuthenticated) {
+      setAuthenticated(isUserAuthenticated);
       setCreate('/create/item');
+      setLogin('/list');
       setCreateIcon(faSquarePlus);
     } else {
       setCreate('/create/account');
+      setLogin('/login');
       setCreateIcon(faUserPlus);
     }
   }, [router]);
@@ -44,9 +48,9 @@ export default function Footer() {
     }
   }
 
-  const handleBids = () => {
-    if (!(path == bids)) {
-      router.push(bids);
+  const handleAuctions = () => {
+    if (!(path == auctions)) {
+      router.push(auctions);
     }
   }
 
@@ -86,11 +90,11 @@ export default function Footer() {
           width={16}
           height={16}
         />
-        Login
+        {authenticated? 'Users info' : 'Login'}
       </a>
       <a
         className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1"
-        onClick={handleBids}
+        onClick={handleAuctions}
         rel="noopener noreferrer"
       >
         <FontAwesomeIcon
@@ -98,7 +102,7 @@ export default function Footer() {
           width={16}
           height={16} 
         />
-        View Bids
+        View Auctions
       </a>
     </footer>
   );

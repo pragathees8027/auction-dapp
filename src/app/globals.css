@@ -16,14 +16,24 @@
   --shadow: rgba(128, 128, 128, 0.2)
 }
 
-.tooltip {
-  background: #0a0a0a;
-  color: #ededed;
+.tooltip::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #3b82f6;
+  top: -4px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
 }
 
-[data-theme='dark'] .tooltip {
-  background: #ffffff;
-  color: #171717;
+.scroll {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -45,12 +55,17 @@ input:focus {
   outline-offset: 2.5px;
 }
 
+
 input::placeholder,
 textarea::placeholder,
 select::placeholder,
 ::placeholder {
   color: var(--placeholder);
   opacity: 1;
+}
+
+[data-theme='dark'] input {
+  color-scheme: dark;
 }
 
 ::-webkit-input-placeholder { /* Safari */

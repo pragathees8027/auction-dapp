@@ -8,6 +8,12 @@ import Loading from "@/components/Loading.js";
 import Header from "@/components/Header.js";
 
 export default function Home() {
+  let auctionAbi = JSON.parse(process.env.NEXT_PUBLIC_AUCTION_ABI);
+  let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  let [provider, setProvider] = useState(null);
+  let [signer, setSigner] = useState(null);
+  let [auctionContract, setAuctionContract] = useState(null);
+
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
   let [loading, setLoading] = useState(true)
@@ -68,7 +74,7 @@ if (loading) {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-10 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
-      <Header />
+      <Header provider={provider} setProvider={setProvider} setSigner={setSigner} setAuctionContract={setAuctionContract}/>
       
       <main className="flex flex-col gap-8 row-start-2 items-center bg-opacity-35 bg-gray-600 px-24 py-16 rounded-lg shadow">
         <h2 className="text-center text-2xl text-blue-500 font-bold">
