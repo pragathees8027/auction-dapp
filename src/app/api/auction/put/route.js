@@ -16,8 +16,8 @@ export const POST = async (req) => {
         }
 
         // Check if the item already exists
-        const existinItem = await Item.findOne({ itemname: itemname, itemowner: itemowner, available: true });
-        if (existinItem) {
+        const existingItem = await Item.findOne({ itemname: itemname, itemowner: itemowner, available: true});
+        if (existingItem) {
             return new Response("Item already registered", { status: 401 });
         }
         
@@ -35,6 +35,8 @@ export const POST = async (req) => {
             datetime: dateTime,
             itemowner: itemowner,
             available: true,
+            winner: 'unknown',
+            bid: '0' 
         });
         
         return new Response(JSON.stringify(item), { status: 200 });

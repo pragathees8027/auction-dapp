@@ -14,6 +14,7 @@ export default function User() {
   let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
   let [provider, setProvider] = useState(null);
   let [signer, setSigner] = useState(null);
+  let [ongoingAuction, setOngoingAuction] = useState([]);
   let [availableItems, setAvailableItems] = useState([]);
   let [unAvailableItems, setUnAvailableItems] = useState([]);
   let [auctionContract, setAuctionContract] = useState(null);
@@ -21,6 +22,7 @@ export default function User() {
   let [userAddr, setUserAddr] = useState(null);
   
   let logout = useSessionStore(state => state.logout);
+  const ws = new WebSocket('ws://localhost:8080');
   let [loading, setLoading] = useState(true)
   let router = useRouter();
 
@@ -34,17 +36,58 @@ export default function User() {
       getAddress();
       getItems(user);
     }
-
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === 'ITEM_ADDED') {
-            getItems(user);
-        }
-    };
     setTimeout(() => { setLoading(false)}, 200);
     // setLoading(false);
   }, []); // Only run on mount
+
+  useEffect(() => {
+    let user = localStorage.getItem('username');
+    if (auctionContract) {
+        connectWallet()
+        getOnGoingAuctionsData();
+    }
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+  
+     if (message.type === 'NEW_BID' || message.type === 'END' || message.type === 'START') {
+      connectWallet();
+      getOnGoingAuctionsData();
+     }
+    };
+  
+    return () => {
+      ws.close();
+    };
+  }, [auctionContract, ws]);
+
+  const connectWallet = async () => {
+    try {
+        await provider.send("eth_requestAccounts", []);
+        const newSigner = provider.getSigner();
+        setSigner(newSigner);
+        const newContract = new ethers.Contract(contractAddress, auctionAbi, newSigner);
+        setAuctionContract(newContract);
+        const address = await getAddress();
+        setUserAddr(address);
+    } catch (error) {
+        alert('Error connecting wallet: ' + error.message);
+    }
+  };
+
+  const getOnGoingAuctionsData = async () => {
+    if (!auctionContract) {
+        return;
+    }
+
+    try {
+        const ongoingAuctionData = await auctionContract.getOngoingAuctions();
+        const userAuctions = ongoingAuctionData.filter(auction => auction.seller.toString().toLowerCase() == userAddr.toString());
+        setOngoingAuction(userAuctions);
+    } catch (error) {
+        alert('Error fetching ongoing auctions: ' + error.message);
+    }
+  };
 
   const getAddress = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -79,7 +122,7 @@ export default function User() {
         setAvailableItems(available);
         setUnAvailableItems(unavailable);
       } else {
-        const errorText = await response.text();
+        // const errorText = await response.text();
         setAvailableItems([]);
         setUnAvailableItems([]);
         // alert(errorText);
@@ -113,10 +156,21 @@ export default function User() {
           )) : <p className="text-red-500 font-bold min-h-40">No items</p>}
         </div>
 
+        <h2 className="text-center text-2xl font-bold bg-green-500 shadow p-4 min-w-full rounded-full mt-24">Ongoing</h2>
+        <div className={`flex flex-wrap outline-dashed rounded-2xl min-w-full min-h-40 ${ongoingAuction.length > 0 ? 'justify-evenly' : 'justify-center pt-32'}`}>
+          {ongoingAuction.length > 0 ? ongoingAuction.map((item, index) => (
+              <Item key={index} auctionContract={auctionContract} name={item.name} 
+              price={`${ item.highestBid ? ethers.utils.formatUnits(item.highestBid, 18).toString() : 'No bids yet'} ETH`} 
+              id={item._id} 
+              owner={`${ item.seller ? item.seller.toString() : 'unknown'}`} 
+              getItems={refreshItems} available={!item.ended} userAddr={userAddr} isAuction={`true`}/>
+          )) : <p className="text-red-500 font-bold min-h-40">No items</p>}
+        </div>
+
         <h2 className="text-center text-2xl font-bold mt-24 bg-red-500 shadow p-4 min-w-full rounded-full">Sold</h2>
-        <div className={`flex flex-wrap outline-dashed rounded-2xl min-w-full min-h-40 ${availableItems.length > 0 ? 'justify-evenly' : 'justify-center pt-32 pb-32'}`}>
+        <div className={`flex flex-wrap outline-dashed rounded-2xl min-w-full min-h-40 ${unAvailableItems.length > 0 ? 'justify-evenly' : 'justify-center pt-32 pb-32'}`}>
           {unAvailableItems.length > 0 ? unAvailableItems.map((item, index) => (
-              <Item key={index} auctionContract={auctionContract} name={item.itemname} price={item.itemprice} id={item._id} owner={item.itemowner} getItems={refreshItems} available={item.available} userAddr={null} user={true}/>
+              <Item key={index} auctionContract={auctionContract} name={item.itemname} price={item.itemprice} id={item._id} owner={item.itemowner} getItems={refreshItems} available={item.available} userAddr={null} user={true} winner={item.winner} winBid={item.bid}/>
           )) : <p className="text-red-500 font-bold">No items</p>}
         </div> 
       </div>

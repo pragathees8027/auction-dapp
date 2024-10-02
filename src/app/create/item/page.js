@@ -19,6 +19,7 @@ export default function Home() {
   let [startdate, setStartdate] = useState('');
   let [starttime, setStarttime] = useState('');
   let [loading, setLoading] = useState(true)
+  const ws = new WebSocket('ws://localhost:8080');
   let router = useRouter();
 
   useEffect(() => {
@@ -35,6 +36,10 @@ export default function Home() {
       setTimeout(() => { setLoading(false)}, 200);
       // setLoading(false);
     }
+
+    return(() => {
+      ws.close();
+    })
   }, [router]);
 
   const handleItemnameChange = (event) => {
@@ -76,10 +81,7 @@ export default function Home() {
 
         if (response.ok) {
             const result = await response.json();
-            const ws = new WebSocket('ws://localhost:8080');
-                ws.onopen = () => {
-                    ws.send(JSON.stringify({ type: 'ITEM_ADDED', item: result }));
-                };
+            ws.send(JSON.stringify({ type: 'ITEM_ADDED' }));
             alert(`Item added successfully: ${result.itemname}, Available: ${result.available}`);
             console.log(result);
         } else {

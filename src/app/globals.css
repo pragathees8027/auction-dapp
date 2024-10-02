@@ -10,13 +10,13 @@
 }
 
 [data-theme='dark'] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #171717;
+  --foreground: #ffffff;
   --placeholder: rgba(256, 256, 256, .5);
   --shadow: rgba(128, 128, 128, 0.2)
 }
 
-.tooltip::before {
+.tooltip-bottom::before {
   position: absolute;
   content: "";
   height: 8px;
@@ -27,6 +27,41 @@
   transform: translate(-50%) rotate(45deg);
 }
 
+.tooltip-top::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #3b82f6;
+  bottom: -4px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+}
+
+.tooltip-left::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #3b82f6;
+  top: 40%;
+  right: -4px;
+  left: 100%;
+  transform: translate(-50%) rotate(45deg);
+}
+
+.tooltip-right::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #3b82f6;
+  top: 40%;
+  left: 0px;
+  right: 100%;
+  transform: translate(-50%) rotate(45deg);
+}
+
 .scroll {
   -ms-overflow-style: none; 
   scrollbar-width: none;
@@ -34,6 +69,10 @@
 
 .scroll::-webkit-scrollbar {
   display: none;
+}
+
+.bid {
+  margin-top: -30vh;
 }
 
 body {

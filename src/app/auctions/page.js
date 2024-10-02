@@ -11,7 +11,7 @@ import Item from "../../components/Item";
 
 export default function Ongoing() {
   let auctionAbi = JSON.parse(process.env.NEXT_PUBLIC_AUCTION_ABI);
-  let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;2
   let [provider, setProvider] = useState(null);
   let [signer, setSigner] = useState(null);
   let [ongoingAuction, setOngoingAuction] = useState([]);
@@ -21,6 +21,7 @@ export default function Ongoing() {
   
   let logout = useSessionStore(state => state.logout);
   let [loading, setLoading] = useState(true)
+  const ws = new WebSocket('ws://localhost:8080');
   let router = useRouter();
 
   useEffect(() => {
@@ -42,13 +43,6 @@ export default function Ongoing() {
     };
     initProvider();
 
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === 'ITEM_ADDED') {
-            getItems(user);
-        }
-    };
     setTimeout(() => { setLoading(false)}, 200);
     // setLoading(false);
   }, []); // Only run on mount
@@ -64,7 +58,19 @@ useEffect(() => {
   if (auctionContract) {
       getOnGoingAuctionsData();
   }
-}, [auctionContract]);
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+
+   if (message.type === 'NEW_BID' || message.type === 'END' || message.type === 'START') {
+    connectWallet();
+    getOnGoingAuctionsData();
+   }
+  };
+
+  return () => {
+    ws.close();
+  };
+}, [auctionContract, ws]);
 
   const connectWallet = async () => {
     try {

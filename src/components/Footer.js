@@ -11,7 +11,7 @@ export default function Footer() {
   let [createIcon, setCreateIcon] = useState();
   let [login, setLogin] = useState('');
   let [authenticated, setAuthenticated] = useState(false);
-  let auctions = '/auction';
+  let auctions = '/auctions';
   let router = useRouter();
   let path = usePathname();
 
