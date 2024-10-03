@@ -17,6 +17,7 @@ export default function User() {
   let [ongoingAuction, setOngoingAuction] = useState([]);
   let [availableItems, setAvailableItems] = useState([]);
   let [unAvailableItems, setUnAvailableItems] = useState([]);
+  let [wonItems, setWonItems] = useState([]);
   let [auctionContract, setAuctionContract] = useState(null);
   let [authenticated, setAuthenticated] = useState(false);
   let [userAddr, setUserAddr] = useState(null);
@@ -36,14 +37,30 @@ export default function User() {
       getAddress();
       getItems(user);
     }
+
+    const initProvider = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+          const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+          setProvider(newProvider);
+      } else {
+          alert('MetaMask not found');
+      }
+    };
+    initProvider();
+    
     setTimeout(() => { setLoading(false)}, 200);
     // setLoading(false);
   }, []); // Only run on mount
 
   useEffect(() => {
-    let user = localStorage.getItem('username');
+    if (provider) {
+        connectWallet();
+        getOnGoingAuctionsData();
+    }
+  }, [provider]); 
+
+  useEffect(() => {
     if (auctionContract) {
-        connectWallet()
         getOnGoingAuctionsData();
     }
 
@@ -51,8 +68,12 @@ export default function User() {
       const message = JSON.parse(event.data);
   
      if (message.type === 'NEW_BID' || message.type === 'END' || message.type === 'START') {
-      connectWallet();
       getOnGoingAuctionsData();
+     }
+
+     if (message.type === 'END') {
+      let user = localStorage.getItem('username');
+      getItems(user);
      }
     };
   
@@ -119,12 +140,16 @@ export default function User() {
         const result = await response.json();
         const available = result.filter(item => item.available === true);
         const unavailable = result.filter(item => item.available === false);
+        const userAddress = await getAddress();
+        const won = result.filter(item => item.winner.toString().toLowerCase() === userAddress.toString().toLowerCase());
         setAvailableItems(available);
         setUnAvailableItems(unavailable);
+        setWonItems(won);
       } else {
         // const errorText = await response.text();
         setAvailableItems([]);
         setUnAvailableItems([]);
+        setWonItems([]);
         // alert(errorText);
       }
     } catch (error) {
@@ -171,6 +196,13 @@ export default function User() {
         <div className={`flex flex-wrap outline-dashed rounded-2xl min-w-full min-h-40 ${unAvailableItems.length > 0 ? 'justify-evenly' : 'justify-center pt-32 pb-32'}`}>
           {unAvailableItems.length > 0 ? unAvailableItems.map((item, index) => (
               <Item key={index} auctionContract={auctionContract} name={item.itemname} price={item.itemprice} id={item._id} owner={item.itemowner} getItems={refreshItems} available={item.available} userAddr={null} user={true} winner={item.winner} winBid={item.bid}/>
+          )) : <p className="text-red-500 font-bold">No items</p>}
+        </div> 
+
+        <h2 className="text-center text-2xl font-bold mt-24 bg-blue-500 shadow p-4 min-w-full rounded-full">Won</h2>
+        <div className={`flex flex-wrap outline-dashed rounded-2xl min-w-full min-h-40 ${unAvailableItems.length > 0 ? 'justify-evenly' : 'justify-center pt-32 pb-32'}`}>
+          {wonItems.length > 0 ? wonItems.map((item, index) => (
+              <Item key={index} auctionContract={auctionContract} name={item.itemname} price={item.itemprice} id={item._id} owner={item.itemowner} getItems={refreshItems} available={item.available} userAddr={null} user={true} winner={item.bid + ' ETC'} winBid={item.bid} won={true}/>
           )) : <p className="text-red-500 font-bold">No items</p>}
         </div> 
       </div>

@@ -90,7 +90,7 @@ export default function Footer() {
           width={16}
           height={16}
         />
-        {authenticated? 'Users info' : 'Login'}
+        {authenticated? 'User' : 'Login'}
       </a>
       <a
         className="flex items-center gap-2 cursor-pointer hover:bg-blue-500 hover:rounded-lg hover:text-white px-2 py-1"
@@ -102,7 +102,7 @@ export default function Footer() {
           width={16}
           height={16} 
         />
-        View Auctions
+        Auctions
       </a>
     </footer>
   );

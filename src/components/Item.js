@@ -8,7 +8,7 @@ import Tooltip from './Tooltip';
 import Bids from './Bids';
 import { ethers } from 'ethers';
 
-const Item = ({auctionContract, name, id, price, owner, getItems, available, userAddr, user, isAuction, winner, winBid}) =>{
+const Item = ({auctionContract, name, id, price, owner, getItems, available, userAddr, user, isAuction, winner, winBid, won}) =>{
     const [index, setIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
@@ -93,7 +93,7 @@ const Item = ({auctionContract, name, id, price, owner, getItems, available, use
           const winningBid = await auctionContract.getHighestBid(itemId);
           const winner = await auctionContract.getHighestBidder(itemId);
           const _winner = winner.toString();
-          const _winningBid = ethers.utils.formatUnits(winningBid, 18).toString()  + ' ETC';
+          const _winningBid = ethers.utils.formatUnits(winningBid, 18).toString();
           const response = await fetch(`/api/auction/end?id=${encodeURIComponent(name)}&bid=${encodeURIComponent(_winningBid)}&winner=${encodeURIComponent(_winner)}`, {
             method: 'GET',
             headers: {
@@ -169,11 +169,11 @@ const Item = ({auctionContract, name, id, price, owner, getItems, available, use
         </h2>
        
         <div className='flex flex-col items-center text-current'>
-        <p>Price</p>
-          <span className='font-bold max-w-48 overflow-scroll scroll'>{available ? price : winBid}</span>
+        <p>{ won ? 'Start price' : `${isAuction ? 'Price' :`${available? 'Start price' : 'Sold for'}`}`}</p>
+          <span className='font-bold max-w-48 overflow-scroll scroll'>{available ? price : winBid +  ' ETC'}</span>
         </div>
         <div className='flex flex-col items-center text-current'>
-          <p>{available ? 'Seller' : 'Buyer'}</p>
+          <p>{available ? 'Seller' : `${won ? 'Bought for' : 'Buyer'}`}</p>
           <span className='font-bold max-w-48 overflow-scroll scroll'>{available ? owner : winner}</span>
         </div>
 
