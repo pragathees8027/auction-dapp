@@ -106,23 +106,20 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## AuctionD in action
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-    <div style="grid-column: span 2;">
-        <img src="./screenshot/home.jpg" alt="home" style="width: 100%;"/>
-    </div>
-    <div style="grid-row: span 3;">
-        <img src="./screenshot/txn.jpg" alt="home" style="height: 100%;"/>
-    </div>
-    <div style="grid-row: span 2;">
-        <img src="./screenshot/login.jpg" alt="login" style="width: 100%;"/>
-        <img src="./screenshot/ongoing.jpg" alt="ongoing" style="width: 100%;"/>
-    </div>
-    <div style="grid-row: span 3;">
-        <img src="./screenshot/bids.jpg" alt="bids" style="width: 100%;"/>
-        <img src="./screenshot/user.jpg" alt="user" style="width: 100%;"/>
-    </div>
-</div>
 
+<table>
+    <tr>
+        <td colspan="2"><img src="./screenshot/home.jpg" alt="home" style="width: 100%;"/></td>
+    </tr>
+    <tr>
+        <td><img src="./screenshot/login.jpg" alt="login" style="width: 100%;"/></td>
+        <td><img src="./screenshot/ongoing.jpg" alt="ongoing" style="width: 100%;"/></td>
+    </tr>
+    <tr>
+        <td><img src="./screenshot/bids.jpg" alt="bids" style="width: 100%;"/></td>
+        <td><img src="./screenshot/user.jpg" alt="user" style="width: 100%;"/></td>
+    </tr>
+</table>
 
 ## Note
 The project was built and tested on [`ephemery-testnet`](https://ephemery.dev/).
