@@ -18,7 +18,10 @@ export default function Home() {
   let [password, setPassword] = useState('');
   let [loading, setLoading] = useState(true)
   let isAuthenticated = useSessionStore(state => state.isAuthenticated);
-  let isUserAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  let isUserAuthenticated;
+  if (typeof window !== 'undefined') {
+    isUserAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  }
   let login = useSessionStore(state => state.login);
   let router = useRouter();
 
